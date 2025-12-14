@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VEREC: From your record we recom you to</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <style>
+        /* di file global.css atau index.css */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;  /* IE dan Edge */
+            scrollbar-width: none;     /* Firefox */
+        }
+    </style>
+</head>
+<body>
+    <div class="flex h-screen relative">
+
+        <!-- Sidebar -->
+        <aside class='top-0 w-20 bg-orange-100 py-4 flex flex-none flex-col z-10 justify-start items-center gap-6 transition-all duration-300 ease-in-out' id="aside_">
+            
+            <div class="flex flex-col gap-2">
+                <div 
+                    class="bg-orange-300 rounded-2xl h-10 aspect-square flex justify-center items-center"
+                    title="Anime"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" class="bi bi-speedometer" viewBox="0 0 16 16">
+                        <path d="M8 2a.5.5 0 0 1 .5.5V4a.5.5 0 0 1-1 0V2.5A.5.5 0 0 1 8 2M3.732 3.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 8a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 8m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 7.31A.91.91 0 1 0 8.85 8.569l3.434-4.297a.39.39 0 0 0-.029-.518z"/>
+                        <path fill-rule="evenodd" d="M6.664 15.889A8 8 0 1 1 9.336.11a8 8 0 0 1-2.672 15.78zm-4.665-4.283A11.95 11.95 0 0 1 8 10c2.186 0 4.236.585 6.001 1.606a7 7 0 1 0-12.002 0"/>
+                    </svg>
+                </div>
+            </div>
+        
+        </aside>
+        
+        <!-- Dashboard -->
+        <main class="flex-grow bg-gray-50 overflow-auto scrollbar-hide font-sans" id="dashboard_">
+            <div class='pt-5 px-6'>
+                <div class="flex gap-2 mb-4 justify-between items-center">
+                    <h1 class="text-2xl font-bold text-gray-800">Analytics Dashboard</h1>
+                    <button class="px-4 py-2 bg-orange-300/40 rounded-full text-sm font-medium uppercase cursor-pointer hover:bg-orange-300 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel" viewBox="0 0 16 16">
+                            <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z"/>
+                        </svg>
+                    </button>
+
+                </div>
+            </div>
+
+            <div class='pt-5 px-6'>
+
+                <div class="grid grid-cols-4 gap-3 mb-6">
+
+                    <div class="bg-white rounded-lg shadow-md row-span-3">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4 px-6 pt-6">Anime Listed</h2>
+                        <div id="animewatched_" class="w-full min-w-0 h-[73vh] overflow-auto scrollbar-hide px-4"></div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="flex items-center gap-2">
+                                <div class="bg-green-100 rounded-full p-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="text-green-500" viewBox="0 0 16 16">
+                                        <path d="M2.5 13.5A.5.5 0 0 1 3 13h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5M13.991 3l.024.001a1.5 1.5 0 0 1 .538.143.76.76 0 0 1 .302.254c.067.1.145.277.145.602v5.991l-.001.024a1.5 1.5 0 0 1-.143.538.76.76 0 0 1-.254.302c-.1.067-.277.145-.602.145H2.009l-.024-.001a1.5 1.5 0 0 1-.538-.143.76.76 0 0 1-.302-.254C1.078 10.502 1 10.325 1 10V4.009l.001-.024a1.5 1.5 0 0 1 .143-.538.76.76 0 0 1 .254-.302C1.498 3.078 1.675 3 2 3zM14 2H2C0 2 0 4 0 4v6c0 2 2 2 2 2h12c2 0 2-2 2-2V4c0-2-2-2-2-2"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 text-sm">Watched</p>
+                                    <h3 class="text-3xl font-bold text-gray-800" id="stat_watched">0</h3>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <div class="bg-red-100 rounded-full p-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="text-red-500" viewBox="0 0 16 16">
+                                        <path d="M2.5 13.5A.5.5 0 0 1 3 13h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5M13.991 3l.024.001a1.5 1.5 0 0 1 .538.143.76.76 0 0 1 .302.254c.067.1.145.277.145.602v5.991l-.001.024a1.5 1.5 0 0 1-.143.538.76.76 0 0 1-.254.302c-.1.067-.277.145-.602.145H2.009l-.024-.001a1.5 1.5 0 0 1-.538-.143.76.76 0 0 1-.302-.254C1.078 10.502 1 10.325 1 10V4.009l.001-.024a1.5 1.5 0 0 1 .143-.538.76.76 0 0 1 .254-.302C1.498 3.078 1.675 3 2 3zM14 2H2C0 2 0 4 0 4v6c0 2 2 2 2 2h12c2 0 2-2 2-2V4c0-2-2-2-2-2"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 text-sm">Unwatched</p>
+                                    <h3 class="text-3xl font-bold text-gray-800" id="stat_unwatched">0</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 col-span-2 h-100">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">test</h2>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script> // ini test data untuk development, jika program sudah selesai hapus bagian ini.
+        let animelist
+        let genrelist
+        let recomlist
+
+        const loadData = async () => {
+            const responseAnime = await fetch("/static/data/myanimelist.json")
+            animelist = await responseAnime.json()
+            
+            const responseGenre = await fetch("/static/data/mygenrelist.json")
+            genrelist = await responseGenre.json()
+
+            const responseRecom = await fetch("/static/data/myrecomlist.json")
+            recomlist = await responseRecom.json()
+        }
+
+        loadData()
+        .then(() => {
+            chartManagement(animelist)
+        })
+    </script>
+
+    <!-- <script> // component asli yang seharusnya jalan
+        document.addEventListener("DOMContentLoaded", () => {
+            Swal.fire({
+                title: "Submit your MAL username",
+                input: "text",
+                inputAttributes: {
+                    autocapitalize: "off"
+                },
+                confirmButtonText: "Submit",
+                showLoaderOnConfirm: true,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showCloseButton: false,
+                showCancelButton: false,
+                preConfirm: async (username) => {
+                    try {
+                        if (!username || username.trim() == "") {
+                            Swal.showValidationMessage("Please enter username!");
+                            return false;
+                        }
+
+                        try {
+                            const response = await startScraping(username)
+                            return response
+                        } catch (error) {
+                            Swal.showValidationMessage(`Request failed: ${error}`);
+                            return false;
+                        }
+                        
+                    } catch (error) {
+                        Swal.showValidationMessage(`
+                            Request failed: ${error}
+                        `);
+                    }
+                }
+            })
+            .then(async (result) => {
+                if (result.isConfirmed) {
+                    await chartManagement(result.value)
+                }
+            });
+        })
+    </script> -->
+
+    <script>
+        const startScraping = async (username_) => {           
+            const response = await fetch(`/scrape?username=${username_}`)
+
+            if (!response.ok){
+                throw new Error(JSON.stringify(await response.json()));
+            }
+
+            return response.json();
+        }
+
+
+        const chartManagement = async (response) => {
+            
+            // set anime list, watch, and unwatch
+            const watched_ = animeWatched(response)
+
+            setTimeout(()=>{
+                console.log(genrelist);
+                console.log(recomlist);
+            }, 5000)
+        }
+
+        const animeWatched = (response) => {
+            const animewatched_ = document.getElementById('animewatched_')
+            const stat_watched = document.getElementById('stat_watched')
+            const stat_unwatched = document.getElementById('stat_unwatched')
+            let watched_count = 0
+
+            const checkProgress = (string) => {
+                let progress = string.split('/')
+                if(progress[1]) return `${progress[0]}/${progress[1]}`
+
+                watched_count += 1
+                return `<div class="flex flex-1 gap-2"><p>${progress[0]}</p> <p class="text-green-500 font-bold">Done!</p></div>`
+            }
+            
+            let html = ``
+            response.data.map((item, i) => {
+                html += `
+                    <a href="https://myanimelist.net/anime/${item.id}" target="_blank" class="flex flex-1 gap-2 py-1 rounded-xl px-2 cursor-pointer transition duration-300 ease-in-out hover:bg-gray-200 hover:scale-105 group">
+                        <img src="${item.image}" class="h-15 aspect-square rounded-2xl">
+                        <div class="flex justify-between items-center w-full">
+                            <div>
+                                <p class="font-bold  group-hover:text-gray-600">${item.title.slice(0, 15) + (item.title.length > 15 ? "..." : "")}</p>
+                                <p class="text-sm">${checkProgress(item.Progress)}</p>
+                            </div>
+                            
+                            <div class="flex justify-center items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="text-yellow-500" viewBox="0 0 16 16">
+                                    <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                                </svg>
+                                <p class="font-bold">${item.score}</p>
+                            </div>
+                        </div>
+                    </a>
+                `
+            })
+            animewatched_.innerHTML = html
+
+            stat_watched.innerText = watched_count
+            stat_unwatched.innerText = response.total_items - watched_count
+        }
+
+
+    </script>
+
+</body>
+</html>

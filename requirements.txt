@@ -1,0 +1,9 @@
+pandas
+numpy
+nltk
+scikit-learn
+rake_nltk
+yake
+sentence_transformers
+flask
+dotenv

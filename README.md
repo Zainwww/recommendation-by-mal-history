@@ -1,0 +1,25 @@
+# 🚀 Step Installation
+
+> Selamat datang! Ikuti langkah-langkah berikut untuk menjalankan project ini di lingkungan lokal Anda.
+
+1. 📦 Clone repositories
+```bash
+git clone ...
+
+cd project-name
+```
+
+2. 📚 Install requirements libraries
+```bash
+pip install -r requirements.txt
+```
+
+3. ▶️ Jalankan Program
+```bash
+python main.py
+
+OR 
+
+py main.py
+```
+
