@@ -4,9 +4,9 @@
 
 1. 📦 Clone repositories
 ```bash
-git clone ...
+git clone https://github.com/jordanistiqlal/recommendation-by-mal-history.git
 
-cd project-name
+cd recommendation-by-mal-history
 ```
 
 2. 📚 Install requirements libraries
