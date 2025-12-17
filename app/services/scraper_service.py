@@ -55,22 +55,12 @@ def scrape_data(username):
     df = df.sort_values('score', ascending=False)
 
 
-    # # pastikan folder data ada
-    # timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    # output_dir = os.path.join(os.path.dirname(__file__), "..", "data")
-    # os.makedirs(output_dir, exist_ok=True)
-
-    # file_path = os.path.join(output_dir, f"{username.lower()}_{timestamp}.csv")
-    # df.to_csv(file_path)
-
     driver.quit()
 
     elapsed_time = time.time() - start_time
 
     return OrderedDict({
         "username": username,
-        # "image": img_url,
-        # "file_path": file_path,
         "total_items": len(df),
         "elapsed_time_sec": round(elapsed_time, 2),
         "data": df.to_dict(orient='records')
