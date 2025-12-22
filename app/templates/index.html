@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../static/logo.png" />
     <title>AFAR: Analysis For Anime Recommendation</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
@@ -167,86 +168,34 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script> // fungsi-fungsi untuk dashboard
-        const status_program = true
-        const filterBtn = document.getElementById('filterBtn');
-        const filterMenu = document.getElementById('filterMenu');
-        let demographicChartInstance
-        let animelist
+    <script> // function all, do it before initialization
+        // fungsi untuk session storage dengan expiry
+        const getSessionStorage = (key) => {
+            const itemStr = sessionStorage.getItem(key)
+            if (!itemStr) return null
 
-        if(status_program){  // ini test data untuk development, jika program sudah selesai hapus bagian ini.
+            const item = JSON.parse(itemStr)
+            const now = Date.now()
 
-            const loadData = async () => {
-                const responseAnime = await fetch("/static/data/myanimelist.json")
-                animelist = await responseAnime.json()
+            if (now > item.expiry) {
+                sessionStorage.removeItem(key)
+                return null
             }
 
-            loadData()
-            .then(async () => {
-                const analysis_data = await startAnalysis(animelist['data'])
-                await chartManagement(animelist, analysis_data)
-                initialFilter(analysis_data)
-            })
-        }
-        else{
-            document.addEventListener("DOMContentLoaded", () => {
-                Swal.fire({
-                    title: "Submit your MAL username",
-                    input: "text",
-                    inputAttributes: {
-                        autocapitalize: "off"
-                    },
-                    confirmButtonText: "Submit",
-                    showLoaderOnConfirm: true,
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    showCloseButton: false,
-                    showCancelButton: false,
-                    preConfirm: async (username) => {
-                        try {
-                            if (!username || username.trim() == "") {
-                                Swal.showValidationMessage("Please enter username!");
-                                return false;
-                            }
-    
-                            try {
-                                const response = await startScraping(username)
-                                return response
-                            } catch (error) {
-                                Swal.showValidationMessage(`Request failed: ${error}`);
-                                return false;
-                            }
-                            
-                        } catch (error) {
-                            Swal.showValidationMessage(`
-                                Request failed: ${error}
-                            `);
-                        }
-                    }
-                })
-                .then(async (result) => {
-                    if (result.isConfirmed) {
-                        animelist = result.value
-                        const analysis = await startAnalysis((result.value).data)
-                        
-                        await chartManagement(animelist, analysis)
-                    }
-                });
-            })
-        }
+            return item.value
+        };
 
-        // Toggle menu
-        filterBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // cegah langsung ketutup
-            filterMenu.classList.toggle('hidden');
-        });
+        // fungsi untuk session storage dengan expiry
+        const setSessionStorage = (key, value, ttlMs) => {
+            const now = Date.now()
 
-        // Klik di luar → tutup menu
-        document.addEventListener('click', (e) => {
-            if (!filterMenu.contains(e.target) && !filterBtn.contains(e.target)) {
-                filterMenu.classList.add('hidden');
+            const item = {
+                value: value,
+                expiry: now + ttlMs
             }
-        });
+
+            sessionStorage.setItem(key, JSON.stringify(item))
+        };
 
         // fungsi untuk memulai scraping
         const startScraping = async (username_) => {           
@@ -504,6 +453,7 @@
             });
         };
 
+        // fungsi pembantu untuk filter
         const createOption = (value, count, type) => {
             const wrapper = document.createElement('div');
             wrapper.className = 'flex items-center mb-2 filter-item hover:bg-gray-200 px-2 rounded-md cursor-pointer transition duration-300 ease-in-out';
@@ -525,11 +475,13 @@
             return wrapper;
         };
 
+        // fungsi pembantu untuk filter
         const toggleAll = (container, checked) => {
             const checkboxes = container.querySelectorAll('input[type="checkbox"]');
             checkboxes.forEach(cb => cb.checked = checked);
         };
 
+        // fungsi pembantu untuk filter
         const searchFilter = (container, keyword) => {
             const items = container.querySelectorAll('.filter-item');
             const search = keyword.toLowerCase();
@@ -539,6 +491,110 @@
                 item.style.display = text.includes(search) ? 'flex' : 'none';
             });
         };
+
+    </script>
+
+    <script> // fungsi-fungsi untuk dashboard
+        const status_program = true
+        const filterBtn = document.getElementById('filterBtn');
+        const filterMenu = document.getElementById('filterMenu');
+        let demographicChartInstance
+        let animelist
+
+
+        // if(status_program){  // ini test data untuk development, jika program sudah selesai hapus bagian ini.
+
+        //     const loadData = async () => {
+        //         const responseAnime = await fetch("/static/data/myanimelist.json")
+        //         animelist = await responseAnime.json()
+
+        //         setSessionStorage('animelist', animelist, 15 * 60 * 1000)
+        //     }
+
+        //     loadData()
+        //     .then(async () => {
+        //         const analysis_data = await startAnalysis(animelist['data'])
+        //         await chartManagement(animelist, analysis_data)
+        //         initialFilter(analysis_data)
+        //     })
+        // }
+        // else{
+        // }
+        
+        if(getSessionStorage('animelist')){
+            animelist = getSessionStorage('animelist')
+
+            async function init() {
+                const analysis_data = await startAnalysis(animelist.data)
+                await chartManagement(animelist, analysis_data)
+                initialFilter(analysis_data)
+
+                setSessionStorage('animelist', animelist, 15 * 60 * 1000)
+            }
+
+            init()
+        }else{
+            document.addEventListener("DOMContentLoaded", () => {
+                Swal.fire({
+                    title: "Submit your MAL username",
+                    input: "text",
+                    inputAttributes: {
+                        autocapitalize: "off"
+                    },
+                    confirmButtonText: "Submit",
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showCloseButton: false,
+                    showCancelButton: false,
+                    preConfirm: async (username) => {
+                        try {
+                            if (!username || username.trim() == "") {
+                                Swal.showValidationMessage("Please enter username!");
+                                return false;
+                            }
+    
+                            try {
+                                const response = await startScraping(username)
+                                return response
+                            } catch (error) {
+                                Swal.showValidationMessage(`Request failed: ${error}`);
+                                return false;
+                            }
+                            
+                        } catch (error) {
+                            Swal.showValidationMessage(`
+                                Request failed: ${error}
+                            `);
+                        }
+                    }
+                })
+                .then(async (result) => {
+                    if (result.isConfirmed) {
+                        animelist = result.value
+    
+                        setSessionStorage('animelist', animelist, 15 * 60 * 1000) // simpan di session storage selama 15 menit
+    
+                        const analysis = await startAnalysis(animelist.data)
+                        
+                        await chartManagement(animelist, analysis)
+                    }
+                });
+            })
+        }
+
+        // Toggle menu
+        filterBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // cegah langsung ketutup
+            filterMenu.classList.toggle('hidden');
+        });
+
+        // Klik di luar → tutup menu
+        document.addEventListener('click', (e) => {
+            if (!filterMenu.contains(e.target) && !filterBtn.contains(e.target)) {
+                filterMenu.classList.add('hidden');
+            }
+        });
 
     </script>
 
