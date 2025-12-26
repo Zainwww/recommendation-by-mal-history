@@ -44,8 +44,11 @@ const inputUsername = (ttlMs) => {
 
             const analysis = await startAnalysis(animelist.data)
             await chartManagement(animelist, analysis)
-            
+
             initialFilter(analysis)
+            
+            const recomendAnime = await recommendationAnime(animelist.data)
+            initialRecommendation(recomendAnime)
         }
     });
 }
@@ -126,7 +129,6 @@ const startAnalysis = async (data) => {
             },
             body: JSON.stringify(data)
         })
-    
         return response.json();
     } catch (error) {
         Swal.fire({
@@ -135,6 +137,55 @@ const startAnalysis = async (data) => {
             text: `Hmmmm... we encountered an error during the analysis process. Please try again later.`,
         });
     }       
+}
+
+const recommendationAnime = async (data) => {
+    try {
+        const response = await fetch(`/recommendation`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+    
+        return response.json();
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Sorry Something Went Wrong',
+            text: `Hmmmm... we encountered an error during the analysis process. Please try again later.`,
+        });
+    }
+}
+
+const initialRecommendation = (data) =>{
+    const animerecommend_ = document.getElementById('animerecommend_')
+
+    let html = ``
+    data.map((item, i) => {
+        html += `
+            <a href="https://myanimelist.net/anime/${item.mal_id}" target="_blank" class="flex flex-1 gap-2 py-1 rounded-xl px-2 cursor-pointer transition duration-300 ease-in-out hover:bg-gray-200 hover:scale-105 group">
+                <img src="${item.image_url}" class="h-15 aspect-square rounded-2xl">
+                <div class="flex justify-between items-center w-full">
+                    <div>
+                        <p class="font-bold  group-hover:text-gray-600">${item.title.slice(0, 20) + (item.title.length > 15 ? "..." : "")}</p>
+                        <p class="text-sm">Total Episodes: <strong>${item.episode}</strong></p>
+                        <p class="text-sm">Similarity: <strong>${(item.similarity_score).toFixed(2)}</strong></p>
+                    </div>
+                    
+                    <div class="flex justify-center items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="text-yellow-500" viewBox="0 0 16 16">
+                            <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                        </svg>
+                        <p class="font-bold">${item.mal_score}</p>
+                    </div>
+                </div>
+            </a>
+        `
+    })
+
+    animerecommend_.innerHTML = html
 }
 
 // fungsi untuk mengelola chart dan data
@@ -147,8 +198,7 @@ const chartManagement = async (response, analysis) => {
         producer, 
         demographic, 
         theme, 
-        anime_time, 
-        recommendation
+        anime_time
     } = analysis
 
     const topGenre = [...genre].sort((a, b) => b[1] - a[1]).slice(0, 5)
@@ -481,6 +531,9 @@ const applyFilters = async () => {
         const analysis = await startAnalysis(setList.data)
         await chartManagement(setList, analysis)
 
+        const recomendAnime = await recommendationAnime(setList.data)
+        initialRecommendation(recomendAnime)
+
     } catch (error) {
         console.log(error);
         Swal.fire({
@@ -510,4 +563,7 @@ const filterWatchStatus = async (status) => {
     const analysis = await startAnalysis(filteredAnime)
     await chartManagement({ ...parsedList, data: filteredAnime }, analysis)
     initialFilter(analysis)
+
+    const recomendAnime = await recommendationAnime(filteredAnime)
+    initialRecommendation(recomendAnime)
 }

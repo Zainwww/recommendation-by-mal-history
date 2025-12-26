@@ -152,6 +152,7 @@
                     <!-- Recommendation -->
                     <div class="bg-white rounded-lg shadow-md row-span-2 h-[75vh]">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4 px-6 pt-6">Recommendation</h2>
+                        <div id="animerecommend_" class="w-full min-w-0 h-[65vh] px-4 overflow-hidden hover:overflow-y-auto"></div>
                     </div>
 
                     <!-- demographic -->
@@ -214,14 +215,13 @@
             async function init() {
                 setSessionStorage('animelist', animelist, ttlMs)
                 
-                
                 const analysis = await startAnalysis(animelist.data)
                 
                 await chartManagement(animelist, analysis)
                 initialFilter(analysis)
 
-                
-
+                const recomendAnime = await recommendationAnime(animelist.data)
+                initialRecommendation(recomendAnime)
             }
 
             init()

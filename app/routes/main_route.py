@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, render_template
 from app.services.scraper_service import scrape_data
-from app.services.analysis_service import analysis_anime
+from app.services.analysis_service import analysis_anime, fetch_analysis
 from app.services.filter_service import filter_anime
 import json
 
@@ -37,5 +37,13 @@ def filter_endpoint():
     data = response.get("data", [])
 
     result = filter_anime(data, selected_genres, selected_studios)
+
+    return jsonify(json.loads(json.dumps(result, indent=4, sort_keys=False)))
+
+@routes.route("/recommendation", methods=['POST'])
+def recommend_endpoint():
+    response = request.get_json()
+
+    result = fetch_analysis(response)
 
     return jsonify(json.loads(json.dumps(result, indent=4, sort_keys=False)))

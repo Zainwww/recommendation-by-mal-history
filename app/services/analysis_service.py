@@ -1,6 +1,8 @@
 import pandas as pd
 import gc
 from app.services.dataset_store import get_dataset, parse_list
+from app.utils.features import build_feature_matrix_cached, build_feature_matrix_incremental 
+from app.services.recomendation_service import recommend_unwatched
 
 def analysis_anime(data):
     df = pd.DataFrame(data)
@@ -28,7 +30,6 @@ def analysis_anime(data):
     demographic = fetch_demographic(analysis_df)
     theme = fetch_theme(analysis_df)
     anime_time = fetch_anime_time(analysis_df)
-    analysis = fetch_analysis(analysis_df)
 
     result = {
         "genre": genre,
@@ -36,8 +37,7 @@ def analysis_anime(data):
         "producer": producer,
         "demographic": demographic,
         "theme": theme,
-        "anime_time": anime_time,
-        "recommendation": analysis
+        "anime_time": anime_time
     }
 
     del df, df_clean, merged_df, analysis_df, dataset
@@ -46,55 +46,42 @@ def analysis_anime(data):
     return result
 
 def fetch_studio(df):
-    temp_df = df[['studio']].copy()
-    temp_df['studio'] = temp_df['studio'].apply(parse_list)
-
-    studio_df = temp_df.explode('studio')['studio'].value_counts().reset_index()
+    studio_df = df.explode('studio')['studio'].value_counts().reset_index()
     studio_df.columns = ['studios', 'count']
 
     result = studio_df.to_dict(orient='records')
 
-    del temp_df, studio_df
+    del studio_df
     gc.collect()
 
     return result
 
 def fetch_genre(df):
-    temp_df = df[['genre']].copy()
-    temp_df['genre'] = temp_df['genre'].apply(parse_list)
-
-    genre_df = temp_df.explode('genre')['genre'].value_counts().reset_index()
+    genre_df = df.explode('genre')['genre'].value_counts().reset_index()
     genre_df.columns = ['genres', 'count']
 
     result = genre_df.to_dict(orient='records')
 
-    del temp_df, genre_df
+    del genre_df
     gc.collect()
 
     return result
 
 def fetch_producer(df):
-    temp_df = df[['producer']].copy()
-    temp_df['producer'] = temp_df['producer'].apply(parse_list)
-
-    producer_df = temp_df.explode('producer')['producer'].value_counts().reset_index()
+    producer_df = df.explode('producer')['producer'].value_counts().reset_index()
     producer_df.columns = ['producers', 'count']
 
     result = producer_df.to_dict(orient='records')
 
-    del temp_df, producer_df
+    del producer_df
     gc.collect()
 
     return result
 
 def fetch_demographic(df):
     required_demographics = ['Shounen', 'Seinen', 'Shoujo', 'Josei', 'Kids']
-    temp_df = df[['demographic']].copy()
     
-    if temp_df['demographic'].dtype == 'object':
-        temp_df['demographic'] = temp_df['demographic'].apply(parse_list)
-    
-    demographic_series = temp_df.explode('demographic')['demographic']
+    demographic_series = df.explode('demographic')['demographic']
     demographic_df = (
         demographic_series.value_counts()
         .reindex(required_demographics, fill_value=0)
@@ -104,22 +91,19 @@ def fetch_demographic(df):
     
     result = demographic_df.to_dict(orient='records')
     
-    del temp_df, demographic_series, demographic_df
+    del demographic_series, demographic_df
     gc.collect()
     
     return result
 
 def fetch_theme(df):
-    temp_df = df[['theme']].copy()
-    temp_df['theme'] = temp_df['theme'].apply(parse_list)
-
-    theme_df = temp_df.explode('theme')['theme'].value_counts().reset_index()
+    theme_df = df.explode('theme')['theme'].value_counts().reset_index()
     theme_df.columns = ['themes', 'count']
     theme_df = theme_df[theme_df['themes'] != '-']
 
     result = theme_df.to_dict(orient='records')
     
-    del temp_df, theme_df
+    del theme_df
     gc.collect()
     
     return result
@@ -159,13 +143,61 @@ def fetch_anime_time(df):
     
     result = time_df.to_dict(orient='records')
     
-    del temp_df, count_df, final_df, time_df
+    del count_df, final_df, time_df
     gc.collect()
     
     return result
 
 def fetch_analysis(df):
-    return []
+    df = pd.DataFrame(df)
+    df.rename(columns={'id': 'mal_id'}, inplace=True)
+    df.rename(columns={'score': 'my_score'}, inplace=True)
+
+    if len(df) < 1:
+        return {"recommendation": []}
+
+    dataset = get_dataset()
+
+    df['mal_id'] = pd.to_numeric(df['mal_id'], errors='coerce')
+
+    cols_to_drop = [col for col in df.columns if col in dataset.columns and col != 'mal_id']
+    df_clean = dataset.drop(columns=cols_to_drop+['image_url'])
+
+    merged_df = pd.merge(df, df_clean, on='mal_id', how='inner')
+    merged_df = merged_df.drop(['Unnamed: 0'], axis=1)
+
+    analysis_df = merged_df.copy()
+
+    dataset = dataset.reset_index(drop=True)
+    malid_to_index = dict(zip(dataset['mal_id'], dataset.index))
+
+    # liked = hanya yang score > 7
+    liked_indices = [
+        malid_to_index[mid]
+        for mid in analysis_df.loc[analysis_df['my_score'] > 7, 'mal_id']
+        if mid in malid_to_index
+    ]
+
+    # watched = SEMUA yang pernah ditonton
+    watched_indices = set(
+        malid_to_index[mid]
+        for mid in analysis_df['mal_id']
+        if mid in malid_to_index
+    )
+
+    feature_matrix = build_feature_matrix_cached(dataset)
+
+    response, scores = recommend_unwatched(
+        dataset=dataset,
+        feature_matrix=feature_matrix,
+        liked_indices=liked_indices,   # my_score > 7
+        watched_indices=watched_indices,
+        top_n=25
+    )
+
+    result = response[['mal_id', 'title', 'link', 'episode', 'mal_score' , 'premiered', 'rank', 'similarity_score', 'image_url']].to_dict(orient='records')
+
+    return result
 
 def main():
     while True:
