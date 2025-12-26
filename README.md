@@ -27,3 +27,9 @@ OR
 python -m flask run --no-reload --no-debugger
 ```
 
+4. 📍After Update code set requirement.txt
+
+```
+pip freeze | grep -f requirements.txt > requirements-core.txt
+
+```
