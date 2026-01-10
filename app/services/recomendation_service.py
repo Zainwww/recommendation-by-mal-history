@@ -1,7 +1,8 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from app.utils.features import build_feature_matrix, build_user_profile
-def recommend_unwatched1(
+
+def recommend_unwatched(
     dataset,
     feature_matrix,
     liked_indices,

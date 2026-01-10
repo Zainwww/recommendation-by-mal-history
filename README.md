@@ -14,6 +14,13 @@ cd recommendation-by-mal-history
 pip install -r requirements.txt
 ```
 
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+pip install --no-cache-dir -r requirements.txt
+```
+
 3. ▶️ Jalankan Program
 ```bash
 python main.py
@@ -21,5 +28,15 @@ python main.py
 OR 
 
 py main.py
+
+OR
+
+python -m flask run --no-reload --no-debugger
 ```
 
+4. 📍After Update code set requirement.txt
+
+```
+pip freeze | grep -f requirements.txt > requirements-core.txt
+
+```
